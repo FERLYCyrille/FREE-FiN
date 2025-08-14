@@ -10,10 +10,18 @@ import SignupPage from './components/auth/register';
 import AccountTypePage from './components/auth/registerType';
 import ExploreFinanceServicesPage from './components/services/page';
 import DashboardClient from './components/DashUserOnTheSite/dashClient';
+import DashboardPage from './components/DashUserOnTheSite/DashboardFreelance'
+import FreelanceProfile from './components/DashUserOnTheSite/ProfilePage';
+import ServiceDetail from './components/services/ServiceDetail';
 import ProtectedRoute from './protectedRoute';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import MissionForm from './components/mission/MissionForm';
+
 function App() {
   return (
     <div className="App">
+      <ToastContainer position="top-right" autoClose={3000} />
       <Router>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -32,10 +40,23 @@ function App() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/dashfreelance"
+            element={
+              <ProtectedRoute allowedRoles={['freelance']}>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/freelance/:slug" element={<FreelanceProfile />} />
+          <Route path="/services/:slug/souscrire" element={<MissionForm />} />
+
+          <Route path="/services/:slug" element={<ServiceDetail />} />
+
         </Routes>
       </Router>
 
-    </div>
+    </div >
   );
 }
 

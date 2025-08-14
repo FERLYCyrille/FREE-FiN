@@ -17,7 +17,7 @@ const LoginPage = () => {
         const user = useUserStore.getState().user;
         if (user) {
             if (user.role === 'freelance') {
-                navigate('/dashboard/freelance');
+                navigate('/dashfreelance');
             } else if (user.role === 'client') {
                 navigate('/dashclient');
             }

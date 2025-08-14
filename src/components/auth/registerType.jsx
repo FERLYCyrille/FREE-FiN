@@ -18,8 +18,7 @@ const AccountTypePage = () => {
         try {
             await register(username, email, password, role);
             setLoading(false);
-            alert("ok good");
-            //navigate('/login'); // redirection après inscription
+            navigate('/login'); // redirection après inscription
         } catch (err) {
             setLoading(false);
             setError('Registration failed. Please try again.');
@@ -56,7 +55,7 @@ const AccountTypePage = () => {
                             Offer your financial expertise to a wide range of clients and grow your business.
                         </p>
                         <button
-                            onClick={() => handleRegister('freelancer')}
+                            onClick={() => handleRegister('freelance')}
                             disabled={loading}
                             className="bg-red-500 hover:bg-red-600 text-white py-2 px-6 rounded transition"
                         >

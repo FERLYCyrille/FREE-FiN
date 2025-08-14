@@ -1,54 +1,37 @@
+import { useEffect, useState } from 'react';
 import Navbar from '../dashboard/sections/navbar';
+import Footer from '../dashboard/sections/footer';
 import ServiceSearchBar from './ServiceSearchBar';
 import ServiceFilters from './ServiceFilters';
 import ServiceCard from './ServiceCard';
-
-const services = [
-    {
-        title: 'Tax Filing & Planning',
-        author: 'Sarah Chen',
-        description: 'Expert assistance with personal and small business tax preparation...',
-        rating: '4.5 (120)',
-        price: '$250/hr',
-    },
-    {
-        title: 'Investment Portfolio Review',
-        author: 'Michael Lee',
-        description: 'Comprehensive analysis of your current investment portfolio...',
-        rating: '5.0 (85)',
-        price: '$300/session',
-    },
-    {
-        title: 'Small Business Accounting',
-        author: 'Emily White',
-        description: 'Full-suite accounting services including payroll and reporting...',
-        rating: '4.8 (95)',
-        price: '$400/month',
-    },
-    {
-        title: 'Retirement Planning',
-        author: 'David Kim',
-        description: 'Strategies for long-term financial security after retirement...',
-        rating: '4.0 (66)',
-        price: '$200/session',
-    },
-    {
-        title: 'Estate Planning',
-        author: 'Jessica Brown',
-        description: 'Wills, trusts, and legacy protection with expert guidance...',
-        rating: '4.7 (75)',
-        price: '$350/session',
-    },
-    {
-        title: 'Debt Management',
-        author: 'Chris Green',
-        description: 'Personalized plans to reduce debt and improve credit health...',
-        rating: '4.2 (50)',
-        price: '$180/hr',
-    },
-];
+import { fetchServices } from '../../stores/servicesStore'
 
 const ExploreFinanceServicesPage = () => {
+    const [services, setServices] = useState([]);
+    const [filtered, setFiltered] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+
+    useEffect(() => {
+        const loadServices = async () => {
+            try {
+                const data = await fetchServices();
+                setServices(data);
+                setFiltered(data);
+            } catch (error) {
+                console.error("Erreur lors du chargement des services :", error);
+            }
+        };
+        loadServices();
+    }, []);
+
+    useEffect(() => {
+        if (!selectedCategory) {
+            setFiltered(services);
+        } else {
+            setFiltered(services.filter(service => service.category === selectedCategory));
+        }
+    }, [selectedCategory, services]);
+
     return (
         <>
             <Navbar />
@@ -56,14 +39,25 @@ const ExploreFinanceServicesPage = () => {
                 <h2 className="text-3xl font-bold text-center mb-8">Explore Finance Services</h2>
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-4">
                     <ServiceSearchBar />
-                    <ServiceFilters />
+                    <ServiceFilters onCategoryChange={setSelectedCategory} />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {services.map((item, index) => (
-                        <ServiceCard key={index} {...item} />
+                    {filtered.map((service) => (
+                        <ServiceCard
+                            key={service.id}
+                            id={service.id}
+                            slug={service.slug}
+                            title={service.title}
+                            author={service.profile?.full_name}
+                            description={service.description}
+                            rating={service.rating}
+                            price={service.pricing_model}
+                            img={service.cover_image}
+                        />
                     ))}
                 </div>
             </section>
+            <Footer />
         </>
     );
 };

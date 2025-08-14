@@ -1,6 +1,6 @@
 import { Users, Target, Star } from 'lucide-react';
 import Navbar from '../dashboard/sections/navbar';
-
+import Footer from '../dashboard/sections/footer'
 const AboutFinanceConnect = () => {
     return (
         <>
@@ -65,6 +65,7 @@ const AboutFinanceConnect = () => {
                     </div>
                 </div>
             </section>
+            <Footer />
         </>
     );
 };

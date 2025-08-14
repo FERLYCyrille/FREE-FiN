@@ -1,24 +1,34 @@
-const ServiceFilters = () => {
-    const filters = [
-        { label: 'Category', options: ['Tax', 'Investment', 'Accounting'] },
-        { label: 'Price Range', options: ['$100–$200', '$200–$500'] },
-        { label: 'Location', options: ['Remote', 'Local'] },
-        { label: 'Rating', options: ['4+', '5 stars'] },
-    ];
+import { useEffect, useState } from 'react';
+import { fetchCategories } from '../../stores/servicesStore';
+
+const ServiceFilters = ({ onCategoryChange }) => {
+    const [categories, setCategories] = useState([]);
+
+    useEffect(() => {
+        const loadCategories = async () => {
+            try {
+                const data = await fetchCategories();
+                setCategories(data);
+            } catch (error) {
+                console.error("Erreur lors du chargement des catégories :", error);
+            }
+        };
+        loadCategories();
+    }, []);
 
     return (
         <div className="flex flex-wrap gap-4 mb-10">
-            {filters.map((filter, index) => (
-                <select
-                    key={index}
-                    className="border rounded px-3 py-2 text-sm text-gray-700"
-                >
-                    <option>{filter.label}</option>
-                    {filter.options.map((opt, i) => (
-                        <option key={i}>{opt}</option>
-                    ))}
-                </select>
-            ))}
+            <select
+                className="border rounded px-3 py-2 text-sm text-gray-700"
+                onChange={(e) => onCategoryChange(e.target.value)}
+            >
+                <option value="">Toutes les catégories</option>
+                {categories.map((cat) => (
+                    <option key={cat.key} value={cat.key}>
+                        {cat.label}
+                    </option>
+                ))}
+            </select>
         </div>
     );
 };

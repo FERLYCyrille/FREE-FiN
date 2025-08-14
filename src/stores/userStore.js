@@ -11,16 +11,13 @@ const useUserStore = create((set) => ({
     loading: false,
     error: null,
 
-    // Connexion : appeler l'API login, stocker token et user
     login: async (username, password) => {
         set({ loading: true, error: null });
         try {
             const response = await api.post('/accounts/login/', { username, password });
             const { token, role } = response.data;
 
-            if (!token || !role) {
-                throw new Error("La réponse ne contient pas les données nécessaires.");
-            }
+            if (!token || !role) throw new Error("La réponse ne contient pas les données nécessaires.");
 
             const user = new User({ username, role });
             setToken(token);
@@ -40,9 +37,8 @@ const useUserStore = create((set) => ({
         }
     },
 
-    // Déconnexion : supprime token et réinitialise les états utilisateur
     logout: () => {
-        localStorage.removeItem('user'); // ✅ on nettoie aussi ici
+        localStorage.removeItem('user');
         clearToken();
         set({
             user: null,
@@ -51,11 +47,9 @@ const useUserStore = create((set) => ({
         });
     },
 
-    // Inscription
     register: async (username, email, password, role) => {
         set({ loading: true, error: null });
         try {
-            console.log("Envoi du register :", username, email, password, role);
             await api.post('/accounts/register/', { username, email, password, role });
             set({ loading: false });
         } catch (error) {
@@ -63,6 +57,24 @@ const useUserStore = create((set) => ({
                 error: error.response?.data?.detail || error.message,
                 loading: false
             });
+        }
+    },
+
+    // ✅ Ajout : rehydrate les données depuis localStorage
+    rehydrateUser: () => {
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+            try {
+                const { username, role } = JSON.parse(storedUser);
+                const user = new User({ username, role });
+                set({
+                    user,
+                    role,
+                    isAuthenticated: true
+                });
+            } catch (e) {
+                console.error("Erreur lors de la rehydratation :", e);
+            }
         }
     }
 }));

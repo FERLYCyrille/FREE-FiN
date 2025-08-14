@@ -1,74 +1,70 @@
-// Structure du composant principal
-// src/pages/ExpertsPage.jsx
-import FilterBar from './FilterBar'
-import ExpertCard from './ExpertCard'
-import Pagination from './Pagination'
-import Navbar from '../dashboard/sections/navbar'
-
-const experts = [
-    {
-        name: 'Sarah Chen',
-        title: 'Certified Public Accountant',
-        rating: 4.9,
-        reviews: 120,
-        description: 'Specializing in small business tax preparation and financial consulting. Over 10 years of experience.',
-        img: '/experts/sarah.jpg'
-    },
-    {
-        name: 'David Lee',
-        title: 'Financial Planner',
-        rating: 4.8,
-        reviews: 95,
-        description: 'Helps individuals with retirement planning, investment strategies, and wealth management.',
-        img: '/experts/david.jpg'
-    },
-    {
-        name: 'Emily White',
-        title: 'Bookkeeping Specialist',
-        rating: 5.0,
-        reviews: 78,
-        description: 'Expert in cloud-based bookkeeping solutions for startups and growing businesses.',
-        img: '/experts/emily.jpg'
-    },
-    {
-        name: 'Michael Brown',
-        title: 'Investment Advisor',
-        rating: 4.7,
-        reviews: 110,
-        description: 'Provides tailored investment advice and portfolio management for diverse client needs.',
-        img: '/experts/michael.jpg'
-    },
-    {
-        name: 'Jessica Green',
-        title: 'Forensic Accountant',
-        rating: 4.6,
-        reviews: 65,
-        description: 'Specializes in financial investigations and litigation support for businesses.',
-        img: '/experts/jessica.jpg'
-    },
-    {
-        name: 'Robert Johnson',
-        title: 'Business Consultant',
-        rating: 4.9,
-        reviews: 88,
-        description: 'Offers strategic financial guidance and operational efficiency improvements for startups.',
-        img: '/experts/robert.jpg'
-    },
-]
+import React, { useEffect, useState } from 'react';
+import FilterBar from './FilterBar';
+import ExpertCard from './ExpertCard';
+import Pagination from './Pagination';
+import Navbar from '../dashboard/sections/navbar';
+import Footer from '../dashboard/sections/footer';
+import useProfileStore from '../../stores/profileStore';
+import { fetchCategories } from '../../stores/servicesStore'; // juste la fonction
 
 export default function ExpertsPage() {
+    const { profiles, loading, error, loadProfiles } = useProfileStore();
+
+    const [categories, setCategories] = useState([]);
+    const [selectedCategory, setSelectedCategory] = useState('');
+
+    useEffect(() => {
+        loadProfiles();
+
+        const loadCategories = async () => {
+            try {
+                const data = await fetchCategories();
+                setCategories(data);
+            } catch (err) {
+                console.error("Erreur chargement catégories", err);
+            }
+        };
+        loadCategories();
+    }, [loadProfiles]);
+
+    const filteredProfiles = selectedCategory
+        ? profiles.filter(profile => profile.category === selectedCategory)
+        : profiles;
+
     return (
         <>
             <Navbar />
             <div className="p-6 ">
-                <FilterBar />
+                <FilterBar
+                    categories={categories}
+                    onCategoryChange={setSelectedCategory}
+                />
+
+                {loading && <p>Chargement des experts...</p>}
+                {error && <p className="text-red-600">Erreur : {error}</p>}
+
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
-                    {experts.map((expert, index) => (
-                        <ExpertCard key={index} {...expert} />
+                    {!loading && !error && filteredProfiles.length === 0 && (
+                        <p>Aucun expert trouvé.</p>
+                    )}
+
+                    {!loading && !error && filteredProfiles.map(profile => (
+                        <ExpertCard
+                            key={profile.id}
+                            slug={profile.slug}
+                            name={`${profile.full_name}`}
+                            title={profile.profession || profile.title || 'Expert'}
+                            rating={profile.rating || 4.5}
+                            reviews={profile.reviews || 0}
+                            description={profile.bio || profile.description || 'Pas de description'}
+                            img={profile.photo || ''}
+                        />
                     ))}
                 </div>
+
                 <Pagination />
             </div>
+            <Footer />
         </>
-    )
+    );
 }

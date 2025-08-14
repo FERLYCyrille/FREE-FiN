@@ -1,5 +1,6 @@
 import { Search, MessageSquare, Handshake } from 'lucide-react';
 import Navbar from '../dashboard/sections/navbar';
+import Footer from '../dashboard/sections/footer'
 
 const Explain = () => {
     return (
@@ -49,6 +50,7 @@ const Explain = () => {
                     </button>
                 </div>
             </section>
+            <Footer />
         </section>
     );
 };
